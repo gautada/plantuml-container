@@ -12,7 +12,7 @@ steps:
     ALPINE_VERSION: 3.16.0
     PLANTUML_VERSION: 1.2022.5
   commands:
-  - podman build --build-arg ALPINE_VERSION=$ALPINE_VERSION --build-arg PLANTUML_VERSION=$PLANTUML_VERSION --file Containerfile --format docker --label revision="$(git rev-parse HEAD)" --label version="$(date +%Y.%m.%d)" --no-cache --tag planuml:build .
+  - podman build --build-arg ALPINE_VERSION=$ALPINE_VERSION --build-arg PLANTUML_VERSION=$PLANTUML_VERSION --file Containerfile --format docker --label revision="$(git rev-parse HEAD)" --label version="$(date +%Y.%m.%d)" --no-cache --tag plantuml:build .
 - name: publish
   environment:
     PLANTUML_VERSION: 1.2022.5
