@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  plantuml:
+    build:
+      args:
+        ALPINE_VERSION: "3.16.2"
+      context: .
+      dockerfile: Containerfile
+      no_cache: true
+      tags:
+        - "plantuml:dev"
+    image: "plantuml:dev"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "development:/opt/development"
+      - "backup:/opt/backup"
+        
+volumes:
+  development:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /Users/mada/Workspace/plantuml/development-volume
+  backup:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /Users/mada/Workspace/plantuml/backup-volume
+      
+
