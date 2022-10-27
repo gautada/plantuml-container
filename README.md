@@ -1,66 +1,29 @@
-# plantuml-container
-A plant UML container for k8s
+# PlantUML
 
-https://plantuml.com
+[PlantUML](https://plantuml.com) is used to draw UML diagrams, using a simple and human readable text description. It's more a drawing tool than a modeling tool.
+
+This container is a [PlantUML Server](https://github.com/plantuml/plantuml-server) which provides the parser and rendering of plantuml -> various diagrams.
+
+
 
 https://github.com/plantuml/plantuml
+Actual project is plantuml-server: https://github.com/plantuml/plantuml-server
+The server includes the [stdlib](https://github.com/plantuml/plantuml-stdlib) which can be accessed via `!include <...>`  
 
-This should be generated from DB
+PlantUML is based on Tomcat and should specify the specific build for tomcat.
+- https://www.middlewareinventory.com/blog/docker-tomcat-example-dockerfile-sample/
+- https://dlcdn.apache.org/tomcat/tomcat-10/
+- https://tomcat.apache.org
 
-CREATE DATABASE architecture;
+## Development
 
-DROP TABLE IF EXISTS node_tag_map;
-DROP TABLE IF EXISTS tags;
-DROP TABLE IF EXISTS nodes;
+### Build
 
-CREATE TABLE tags (
- tag VARCHAR(50) PRIMARY KEY NOT NULL
-);
+docker build --build-arg ALPINE_VERSION=3.16.2 --build-arg PLANTUML_VERSION=1.2022.7 --build-arg TOMCAT_VERSION=10.0.27 --file Containerfile --label revision="$(git rev-parse HEAD)" --label version="$(date +%Y.%m.%d)" --no-cache --tag plantuml:build .
 
-CREATE TABLE nodes (
- alias VARCHAR(25) PRIMARY KEY NOT NULL,
- label VARCHAR(255) NOT NULL,
- type VARCHAR(255),
- description TEXT,
- sprite VARCHAR(255),
- link VARCHAR(255)
-);
+### Run
 
-CREATE TABLE node_tag_map (
- node VARCHAR(25) NOT NULL,
- tag VARCHAR(50) NOT NULL,
- PRIMARY KEY (node, tag)
-);
+docker run --interactive --tty --name plantuml-manual --publish 8080:8080 --rm plantuml:build
 
-CREATE TABLE systems (
- alias VARCHAR(25) PRIMARY KEY NOT NULL,
- label VARCHAR(255) NOT NULL,
- type VARCHAR(25) NOT NULL,
- external BOOLEAN NOT NULL,
- description TEXT,
- sprite VARCHAR(255),
- link VARCHAR(255),
- role VARCHAR(25)
-);
 
-CREATE TABLE system_tag_map (
- system VARCHAR(25) NOT NULL,
- tag VARCHAR(50) NOT NULL,
- PRIMARY KEY (node, tag)
-);
 
--- Physical Locations
-INSERT INTO nodes VALUES ('HOME', 'Home', 'Location', 'This is a standard home location, i.e. a provate residence outside of a managed enterprise environment', NULL, NULL, NULL);
-
--- Profiles are virtual profiles for the network
-INSERT INTO nodes VALUES ('PRF_ANT', 'Anthony', 'Profile', 'A virtual location for devices assigned to Anthony', NULL, NULL, 'HOME');
-
-INSERT INTO nodes VALUES ('PRF_AUB', 'Aubrey', 'Profile', 'A virtual location for devices assigned to Aubrey', NULL, NULL, 'HOME');
-
-INSERT INTO nodes VALUES ('PRF_CLSTR', 'Cluster', 'Profile', 'A virtual location for devices assigned to the k8s cluster', NULL, NULL, 'HOME');
-
-INSERT INTO nodes VALUES ('PRF_DVCS', 'Devices', 'Profile', 'A virtual location for devices that are used exclusevely as IOT devices', NULL, NULL, 'HOME');
-
-INSERT INTO nodes VALUES ('PRF_GUEST', 'Guest', 'Profile', 'A virtual location for devices not assigned to a member of the family', NULL, NULL, 'HOME');
-
-INSERT INTO nodes VALUES ('PRF_WORK', 'Work', 'Profile', 'A virtual location for devices used for work purposes', NULL, NULL, 'HOME');

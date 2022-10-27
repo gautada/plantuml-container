@@ -4,6 +4,8 @@ services:
     build:
       args:
         ALPINE_VERSION: "3.16.2"
+        PLANTUML_VERSION: "1.2022.7"
+        TOMCAT_VERSION: "10.0.27"
       context: .
       dockerfile: Containerfile
       no_cache: true
