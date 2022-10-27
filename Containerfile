@@ -10,8 +10,8 @@ FROM gautada/alpine:$ALPINE_VERSION as plantuml-build
 # ╭――――――――――――――――――――╮
 # │ VERSION            │
 # ╰――――――――――――――――――――╯
-ARG PLANTUML_VERSION=1.2022.7
-ARG PLANTUML_BRANCH=v"$PLANTUML_VERSION"
+ARG PLANTUML_SERVER_VERSION=1.2022.7
+ARG PLANTUML_SERVER_BRANCH=v"$PLANTUML_VERSION"
 
 # ╭――――――――――――――――――――╮
 # │ PACKAGES           │
@@ -24,18 +24,18 @@ RUN /sbin/apk add --no-cache git gradle maven openjdk17-jdk ttf-dejavu
 # ╰――――――――――――――――――――╯
 # Pull the coredns source code from github.
 RUN git config --global advice.detachedHead false
-RUN git clone --branch $PLANTUML_BRANCH --depth 1 https://github.com/plantuml/plantuml.git
-RUN git clone --branch $PLANTUML_BRANCH --depth 1 https://github.com/plantuml/plantuml-server.git
+# RUN git clone --branch $PLANTUML_BRANCH --depth 1 https://github.com/plantuml/plantuml.git
+RUN git clone --branch $PLANTUML_SERVER_BRANCH --depth 1 https://github.com/plantuml/plantuml-server.git
 COPY config.properties /plantuml-server/src/main/resources/config.properties
 COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
-RUN /bin/mkdir /plantuml-server/src/main/webapp/test
-COPY index.html /plantuml-server/src/main/webapp/test/index.html
-RUN git clone --depth 1 https://github.com/plantuml/plantuml-stdlib.git
+# RUN /bin/mkdir /plantuml-server/src/main/webapp/test
+# COPY index.html /plantuml-server/src/main/webapp/test/index.html
+# RUN git clone --depth 1 https://github.com/plantuml/plantuml-stdlib.git
 
 # ╭――――――――――――――――――――╮
 # │ BUILD              │
 # ╰――――――――――――――――――――╯
-COPY sequenceDiagram.puml /sequenceDiagram.puml
+# COPY sequenceDiagram.puml /sequenceDiagram.puml
 WORKDIR /plantuml-server
 RUN gradle --status
 WORKDIR /plantuml

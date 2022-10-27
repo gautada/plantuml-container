@@ -49,13 +49,13 @@ PlantUML is based on Tomcat and should specify the specific build for tomcat.
 
 ### Build
 
-#### Arguments
+#### Version Arguments
 
-1. ALPINE_VERSION
-2. PLANTUML_SERVER_VERSION
-3. TOMCAT_VERSION
+1. Container Base - Alpine Linux: [ALPINE_VERSION](https://hub.docker.com/repository/registry-1.docker.io/gautada/alpine/tags?page=1&ordering=last_updated) 
+2. Code - PlantUML Server: [PLANTUML_SERVER_VERSION](https://github.com/plantuml/plantuml-server/tags)
+3. Supporting - Tomcat Server: [TOMCAT_VERSION](https://dlcdn.apache.org/tomcat/tomcat-10)
 
-## ARchitecture
+## Architecture
 
 ### Context
 
