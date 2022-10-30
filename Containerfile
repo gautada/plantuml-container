@@ -11,7 +11,7 @@ FROM gautada/alpine:$ALPINE_VERSION as plantuml-build
 # │ VERSION            │
 # ╰――――――――――――――――――――╯
 ARG PLANTUML_SERVER_VERSION=1.2022.7
-ARG PLANTUML_SERVER_BRANCH=v"$PLANTUML_VERSION"
+ARG PLANTUML_SERVER_BRANCH=v"$PLANTUML_SERVER_VERSION"
 
 # ╭――――――――――――――――――――╮
 # │ PACKAGES           │
@@ -36,10 +36,10 @@ COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
 # │ BUILD              │
 # ╰――――――――――――――――――――╯
 # COPY sequenceDiagram.puml /sequenceDiagram.puml
-WORKDIR /plantuml-server
-RUN gradle --status
-WORKDIR /plantuml
-RUN /usr/bin/gradle jar
+# WORKDIR /plantuml-server
+# RUN gradle --status
+# WORKDIR /plantuml
+# RUN /usr/bin/gradle jar
 WORKDIR /plantuml-server
 RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
 
@@ -73,7 +73,7 @@ EXPOSE 8080/tcp
 # │ APPLICATION        │
 # ╰――――――――――――――――――――╯
 COPY --from=plantuml-build /plantuml-server/target/plantuml.war /plantuml.war
-COPY --from=plantuml-build /plantuml/build/libs/*.jar /
+# COPY --from=plantuml-build /plantuml/build/libs/*.jar /
 RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
 WORKDIR /opt
 RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
