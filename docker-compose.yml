@@ -3,7 +3,7 @@ services:
   plantuml:
     build:
       args:
-        ALPINE_VERSION: "3.16.2"
+        ALPINE_VERSION: "3.16.3"
         PLANTUML_SERVER_VERSION: "1.2022.7"
         TOMCAT_VERSION: "10.0.27"
       context: .

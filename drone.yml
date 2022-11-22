@@ -9,18 +9,25 @@ platform:
 steps:
 - name: build
   environment:
-    ALPINE_VERSION: 3.16.0
-    PLANTUML_VERSION: 1.2022.5
+    ALPINE_VERSION: 3.16.3
+    PLANTUML_VERSION: 1.2022.7
+    TOMCAT_VERSION: 10.0.27
   commands:
-  - podman build --build-arg ALPINE_VERSION=$ALPINE_VERSION --build-arg PLANTUML_VERSION=$PLANTUML_VERSION --file Containerfile --format docker --label revision="$(git rev-parse HEAD)" --label version="$(date +%Y.%m.%d)" --no-cache --tag plantuml:build .
+  - podman build --build-arg ALPINE_VERSION=$ALPINE_VERSION --build-arg PLANTUML_VERSION=$PLANTUML_VERSION --build-arg TOMCAT_VERSION=$TOMCAT_VERSION --file Containerfile --format docker --label revision="$(git rev-parse HEAD)" --label version="$(date +%Y.%m.%d)" --no-cache --tag plantuml:build .
 - name: publish
   environment:
-    PLANTUML_VERSION: 1.2022.5
+    CONTAINER_NAME: "plantuml"
+    PLANTUML_VERSION: 1.2022.7
     DOCKERIO_USERNAME:
       from_secret: username.docker.io
     DOCKERIO_PASSWORD:
       from_secret: password.docker.io
   commands:
-   - podman tag plantuml:build docker.io/$DOCKERIO_USERNAME/plantuml:$PLANTUML_VERSION
+   - podman tag $CONTAINER_NAME:build docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:$PLANTUML_VERSION
    - podman login --username=$DOCKERIO_USERNAME --password=$DOCKERIO_PASSWORD docker.io
-   - podman push docker.io/$DOCKERIO_USERNAME/plantuml:$PLANTUML_VERSION
+   - podman push docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:$PLANTUML_VERSION
+   - podman push docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:latest
+
+trigger:
+  branch:
+  - main

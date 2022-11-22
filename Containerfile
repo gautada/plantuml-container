@@ -2,7 +2,7 @@ ARG ALPINE_VERSION=3.14.1
 
 # ╭――――――――――――――――-------------------------------------------------------――╮
 # │                                                                         │
-# │ STAGE 1: plantuml-container build the plantuml server from scratch                                            │
+# │ STAGE 1: plantuml-container build the plantuml server from scratch      │
 # │                                                                         │
 # ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――╯
 FROM gautada/alpine:$ALPINE_VERSION as plantuml-build
@@ -22,7 +22,7 @@ RUN /sbin/apk add --no-cache git gradle maven openjdk17-jdk ttf-dejavu
 # ╭――――――――――――――――――――╮
 # │ SOURCE             │
 # ╰――――――――――――――――――――╯
-# Pull the coredns source code from github.
+# Pull the  source code from github.
 RUN git config --global advice.detachedHead false
 # RUN git clone --branch $PLANTUML_BRANCH --depth 1 https://github.com/plantuml/plantuml.git
 RUN git clone --branch $PLANTUML_SERVER_BRANCH --depth 1 https://github.com/plantuml/plantuml-server.git
@@ -59,6 +59,12 @@ LABEL maintainer="Adam Gautier <adam@gautier.org>"
 LABEL description="A plant uml server"
 
 # ╭――――――――――――――――――――╮
+# │ ENTRYPOINT         │
+# ╰――――――――――――――――――――╯
+RUN rm -v /etc/container/entrypoint
+COPY entrypoint /etc/container/entrypoint
+
+# ╭――――――――――――――――――――╮
 # │ VERSION            │
 # ╰――――――――――――――――――――╯
 ARG TOMCAT_VERSION=10.0.27
@@ -85,8 +91,6 @@ RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tom
  && ln -s /opt/plantuml/logs /opt/tomcat10/logs \
  && ln -s /opt/plantuml/temp /opt/tomcat10/temp \
  && ln -s /opt/plantuml/work /opt/tomcat10/work
-
-COPY 10-ep-container.sh /etc/container/entrypoint.d/10-ep-container.sh
 
 # ╭――――――――――――――――――――╮
 # │ USER               │
