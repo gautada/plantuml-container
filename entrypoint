@@ -22,6 +22,7 @@ if [ -z "$ENTRYPOINT_PARAMS" ] ; then # Run as container app
   unset TEST
   echo "---------- [ WEB APPLICATION(plantuml) ] ----------"
   /opt/tomcat10/bin/catalina.sh run
+  # tail -f /dev/null
  fi
 fi
 

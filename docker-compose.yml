@@ -15,16 +15,16 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "development:/opt/development"
-      - "backup:/opt/backup"
+      - "container:/mnt/volumes/container"
+      - "backup:/mnt/volumes/backup"
         
 volumes:
-  development:
+  container:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /Users/mada/Workspace/plantuml/development-volume
+      device: /Users/mada/Workspace/plantuml/container-volume
   backup:
     driver: local
     driver_opts:
