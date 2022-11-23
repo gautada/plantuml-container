@@ -1,4 +1,4 @@
-ARG ALPINE_VERSION=3.14.1
+ARG ALPINE_VERSION=3.16.3
 
 # ╭――――――――――――――――-------------------------------------------------------――╮
 # │                                                                         │
@@ -78,35 +78,40 @@ EXPOSE 8080/tcp
 # ╭――――――――――――――――――――╮
 # │ APPLICATION        │
 # ╰――――――――――――――――――――╯
-COPY --from=plantuml-build /plantuml-server/target/plantuml.war /plantuml.war
+# COPY --from=plantuml-build /plantuml-server/target/plantuml.war /plantuml.war
 # COPY --from=plantuml-build /plantuml/build/libs/*.jar /
 RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
 WORKDIR /opt
 RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
  && tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz \
  && mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10 \
- && rm -rf /opt/apache-tomcat-10.0.22 /opt/tomcat10/webapps /opt/tomcat10/logs /opt/tomcat10/temp /opt/tomcat10/work \
+ && rm -rf /opt/apache-tomcat-10.0.22 \
+ && mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ \
+ && mv /opt/tomcat10/logs /opt/tomcat10/logs~ \
+ && mv /opt/tomcat10/temp /opt/tomcat10/temp~ \
+ && mv /opt/tomcat10/work /opt/tomcat10/work~ \
  && mkdir /opt/tomcat10/webapps \
- && mv /plantuml.war /opt/tomcat10/webapps/ROOT.war \
  && ln -s /opt/plantuml/logs /opt/tomcat10/logs \
  && ln -s /opt/plantuml/temp /opt/tomcat10/temp \
  && ln -s /opt/plantuml/work /opt/tomcat10/work
+ 
+# && mv /plantuml.war /opt/tomcat10/webapps/ROOT.war \
+COPY --from=plantuml-build /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
 
 # ╭――――――――――――――――――――╮
 # │ USER               │
 # ╰――――――――――――――――――――╯
-ARG USER=plantuml
-RUN /bin/mkdir -p /opt/$USER /var/backup /tmp/backup /opt/backup \
- && /usr/sbin/addgroup $USER \
- && /usr/sbin/adduser -D -s /bin/ash -G $USER $USER \
- && /usr/sbin/usermod -aG wheel $USER \
- && /bin/echo "$USER:$USER" | chpasswd \
- && /bin/chown $USER:$USER -R /opt/tomcat10 /opt/$USER
+# ARG USER=plantuml
+# RUN /bin/mkdir -p /opt/$USER /var/backup /tmp/backup /opt/backup \
+#  && /usr/sbin/addgroup $USER \
+#  && /usr/sbin/usermod -aG wheel $USER \
+#  && /bin/echo "$USER:$USER" | chpasswd \
+# && /bin/chown $USER:$USER -R /opt/tomcat10 /opt/$USER
 # /etc/backup /var/backup /tmp/backup /opt/backup
  
-USER $USER
-WORKDIR /home/$USER
-VOLUME /opt/$USER
+# USER $USER
+# WORKDIR /home/$USER
+ #VOLUME /opt/$USER
 
 
 
