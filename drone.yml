@@ -24,6 +24,7 @@ steps:
       from_secret: password.docker.io
   commands:
    - podman tag $CONTAINER_NAME:build docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:$PLANTUML_VERSION
+   - podman tag $CONTAINER_NAME:build docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:latest
    - podman login --username=$DOCKERIO_USERNAME --password=$DOCKERIO_PASSWORD docker.io
    - podman push docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:$PLANTUML_VERSION
    - podman push docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:latest
