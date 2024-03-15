@@ -68,9 +68,10 @@ ARG TOMCAT_BRANCH=v"$TOMCAT_VERSION"
 RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
 
 WORKDIR /opt
-RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz 
+RUN curl -s https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz --output tomcat.tar.gz
 
-RUN tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz
+RUN tar -zxf tomcat.tar.gz
+RUN rm tomcat.tar.gz
 RUN mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10
 RUN rm -rf /opt/apache-tomcat-10.0.22 
 # RUN mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ 
