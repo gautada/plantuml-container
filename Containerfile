@@ -74,7 +74,7 @@ RUN /bin/rm -f /jetty-home.zip
 RUN /bin/ln -fsv /opt/jetty-home-$JETTY_VERSION /opt/jetty-home
 WORKDIR /opt/jetty-home
 
-RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http,deploy
+RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http,ee10-deploy
 # COPY --from=src /plantuml-server /home/$USER/plantuml-server
 
 # RUN /bin/mkdir /home/$USER/jetty-base/webapps
