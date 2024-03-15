@@ -82,7 +82,7 @@ COPY --from=src /plantuml-server /home/$USER/plantuml-server
 # RUN /bin/mkdir /home/$USER/jetty-base/webapps
 COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
 
-# COPY ROOT.xml /home/$USER/ROOT.xml
+COPY ROOT.xml /home/$USER/ROOT.xml
 # /home/$USER/jetty-base/webapps/ROOT.xml
 
 # ╭―
