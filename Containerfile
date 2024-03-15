@@ -9,7 +9,7 @@ ARG CONTAINER_VERSION="1.2022.7"
 ARG PLANTUML_SERVER_VERSION="$CONTAINER_VERSION"
 ARG PLANTUML_SERVER_BRANCH=v"$PLANTUML_SERVER_VERSION"
 
-RUN /sbin/apk add --no-cache git gradle maven openjdk17-jdk ttf-dejavu
+RUN /sbin/apk add --no-cache git gradle maven openjdk11-jdk ttf-dejavu
 # graphviz
 
 RUN git config --global advice.detachedHead false
@@ -62,7 +62,7 @@ COPY entrypoint /etc/container/entrypoint
 # ╭―
 # │ APPLICATION        
 # ╰――――――――――――――――――――
-RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
+RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk11-jre
 RUN /sbin/apk add --no-cache jetty-runner
 ARG JETTY_VERSION=12.0.7
 
@@ -75,14 +75,12 @@ RUN /bin/ln -fsv /opt/jetty-home-$JETTY_VERSION /opt/jetty-home
 WORKDIR /opt/jetty-home
 
 RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http,ee10-deploy
-COPY --from=src /plantuml-server /home/$USER/plantuml-server
-
-# COPY --from=src /plantuml-server/target/plantuml.war /plantuml.war
+# COPY --from=src /plantuml-server /home/$USER/plantuml-server
 
 # RUN /bin/mkdir /home/$USER/jetty-base/webapps
 COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
 
-COPY ROOT.xml /home/$USER/ROOT.xml
+# COPY ROOT.xml /home/$USER/ROOT.xml
 # /home/$USER/jetty-base/webapps/ROOT.xml
 
 # ╭―
