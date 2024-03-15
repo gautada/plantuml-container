@@ -78,6 +78,7 @@ RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=
 
 RUN /bin/mkdir /home/$USER/jetty-base/webapps
 COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
+COPY ROOT.xml /home/$USER/jetty-base/webapps/ROOT.xml
 
 # ╭―
 # │ CONFIGURATION
