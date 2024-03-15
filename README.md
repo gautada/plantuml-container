@@ -81,3 +81,15 @@ Rel("PLANTUML", "GITHUB", "Published Diagram(Image)")
 Rel("PLANTUML", "MODEL", "Published Diagram(Encoded)")
 @enduml
 ```
+
+
+Removed 
+
+```
+<% if (showSocialButtons) { %>
+	<%@ include file="resource/socialbuttons1.html" %>
+<% } %>
+<% if (showGithubRibbon) { %>
+	<%@ include file="resource/githubribbon.html" %>
+<% } %>
+```

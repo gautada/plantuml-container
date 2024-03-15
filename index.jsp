@@ -45,12 +45,6 @@
     <div id="header">
         <%-- PAGE TITLE --%>
         <h1>PlantUML Server</h1>
-        <% if (showSocialButtons) { %>
-            <%@ include file="resource/socialbuttons1.html" %>
-        <% } %>
-        <% if (showGithubRibbon) { %>
-            <%@ include file="resource/githubribbon.html" %>
-        <% } %>
         <p>Create your <a href="https://plantuml.com">PlantUML</a> diagrams directly in your browser!</p>
     </div>
     <div id="content">
