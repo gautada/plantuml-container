@@ -1,5 +1,7 @@
 # PlantUML
 
+FF
+
 [PlantUML](https://plantuml.com) is used to draw UML diagrams, using a simple and human readable text description. It's more a drawing tool than a modeling tool.
 
 This container is a [PlantUML Server](https://github.com/plantuml/plantuml-server) which provides the parser and rendering of plantuml -> various diagrams.
@@ -78,4 +80,16 @@ Rel("PLANTUML", "SPRITES", "References Image")
 Rel("PLANTUML", "GITHUB", "Published Diagram(Image)")
 Rel("PLANTUML", "MODEL", "Published Diagram(Encoded)")
 @enduml
+```
+
+
+Removed 
+
+```
+<% if (showSocialButtons) { %>
+	<%@ include file="resource/socialbuttons1.html" %>
+<% } %>
+<% if (showGithubRibbon) { %>
+	<%@ include file="resource/githubribbon.html" %>
+<% } %>
 ```

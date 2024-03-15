@@ -1,31 +1,20 @@
 #!/bin/ash
 #
+# entrypoint: Located at `/etc/container/entrypoint` this script is the custom
+#             entry for a container as called by `/usr/bin/container-entrypoint` set
+#             in the upstream [alpine-container](https://github.com/gautada/alpine-container).
+#             The default template is kept in
+#             [gist](https://gist.github.com/gautada/f185700af585a50b3884ad10c2b02f98)
 
-FOLDER_LOGS="/opt/plantuml/logs"
-if [ ! -d $FOLDER_LOGS ] ; then
- mkdir -p $FOLDER_LOGS
-fi
 
-FOLDER_TEMP="/opt/plantuml/temp"
-if [ ! -d $FOLDER_TEMP ] ; then
- mkdir -p $FOLDER_TEMP
-fi
+container_version() {
+ echo "0.0.0"
+}
 
-FOLDER_WORK="/opt/plantuml/work"
-if [ ! -d $FOLDER_WORK ] ; then
- mkdir -p $FOLDER_WORK
-fi
-
-if [ -z "$ENTRYPOINT_PARAMS" ] ; then # Run as container app
- TEST="$(/usr/bin/pgrep java)"
- if [ $? -eq 1 ] ; then
-  unset TEST
-  echo "---------- [ WEB APPLICATION(plantuml) ] ----------"
-  /opt/tomcat10/bin/catalina.sh run
-  # tail -f /dev/null
- fi
-fi
-
+container_entrypoint() {
+ /opt/tomcat10/bin/catalina.sh run
+ # tail -f /dev/null
+}
 
 
 

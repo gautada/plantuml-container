@@ -1,6 +1,6 @@
 kind: pipeline
 type: exec
-name: Container Build - PlantUML
+name: CICD - Container Build
 
 platform:
   os: linux
@@ -8,27 +8,48 @@ platform:
 
 steps:
 - name: build
-  environment:
-    ALPINE_VERSION: 3.16.3
-    PLANTUML_VERSION: 1.2022.7
-    TOMCAT_VERSION: 10.0.27
   commands:
-  - podman build --build-arg ALPINE_VERSION=$ALPINE_VERSION --build-arg PLANTUML_VERSION=$PLANTUML_VERSION --build-arg TOMCAT_VERSION=$TOMCAT_VERSION --file Containerfile --format docker --label revision="$(git rev-parse HEAD)" --label version="$(date +%Y.%m.%d)" --no-cache --tag plantuml:build .
-- name: publish
+  - /usr/sbin/image-build
+  - /usr/bin/podman images
+
+- name: push
   environment:
-    CONTAINER_NAME: "plantuml"
-    PLANTUML_VERSION: 1.2022.7
     DOCKERIO_USERNAME:
       from_secret: username.docker.io
     DOCKERIO_PASSWORD:
       from_secret: password.docker.io
+    PUBLISH_REPOSITORY:
+      value: docker.io
   commands:
-   - podman tag $CONTAINER_NAME:build docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:$PLANTUML_VERSION
-   - podman tag $CONTAINER_NAME:build docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:latest
-   - podman login --username=$DOCKERIO_USERNAME --password=$DOCKERIO_PASSWORD docker.io
-   - podman push docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:$PLANTUML_VERSION
-   - podman push docker.io/$DOCKERIO_USERNAME/$CONTAINER_NAME:latest
+  - pwd
+  - /usr/sbin/image-name
+  - /usr/sbin/image-tag test
+  - /usr/sbin/image-publish test
+
+- name: publish
+  environment:
+    DOCKERIO_USERNAME:
+      from_secret: username.docker.io
+    DOCKERIO_PASSWORD:
+      from_secret: password.docker.io
+    PUBLISH_REPOSITORY:
+      value: docker.io
+  commands:
+  - echo "$(/usr/sbin/image-version)"
+  - /usr/sbin/image-tag "$(/usr/sbin/image-version)"
+  - /usr/sbin/image-publish "$(/usr/sbin/image-version)"
+  - /usr/sbin/image-tag latest
+  - /usr/sbin/image-publish latest
+  when:
+    branch:
+    - main  
 
 trigger:
-  branch:
-  - main
+  event:
+  - push
+  
+
+
+
+
+  

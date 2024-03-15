@@ -1,117 +1,91 @@
-ARG ALPINE_VERSION=3.16.3
+ARG ALPINE_VERSION=latest
 
-# ╭――――――――――――――――-------------------------------------------------------――╮
-# │                                                                         │
-# │ STAGE 1: plantuml-container build the plantuml server from scratch      │
-# │                                                                         │
-# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――╯
-FROM gautada/alpine:$ALPINE_VERSION as plantuml-build
+FROM docker.io/gautada/alpine:$ALPINE_VERSION as src
 
 # ╭――――――――――――――――――――╮
 # │ VERSION            │
 # ╰――――――――――――――――――――╯
-ARG PLANTUML_SERVER_VERSION=1.2022.7
+ARG CONTAINER_VERSION="1.2022.7"
+ARG PLANTUML_SERVER_VERSION="$CONTAINER_VERSION"
 ARG PLANTUML_SERVER_BRANCH=v"$PLANTUML_SERVER_VERSION"
 
-# ╭――――――――――――――――――――╮
-# │ PACKAGES           │
-# ╰――――――――――――――――――――╯
 RUN /sbin/apk add --no-cache git gradle maven openjdk17-jdk ttf-dejavu
 # graphviz
 
-# ╭――――――――――――――――――――╮
-# │ SOURCE             │
-# ╰――――――――――――――――――――╯
-# Pull the  source code from github.
 RUN git config --global advice.detachedHead false
-# RUN git clone --branch $PLANTUML_BRANCH --depth 1 https://github.com/plantuml/plantuml.git
 RUN git clone --branch $PLANTUML_SERVER_BRANCH --depth 1 https://github.com/plantuml/plantuml-server.git
-COPY config.properties /plantuml-server/src/main/resources/config.properties
-COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
-# RUN /bin/mkdir /plantuml-server/src/main/webapp/test
-# COPY index.html /plantuml-server/src/main/webapp/test/index.html
-# RUN git clone --depth 1 https://github.com/plantuml/plantuml-stdlib.git
-
-# ╭――――――――――――――――――――╮
-# │ BUILD              │
-# ╰――――――――――――――――――――╯
-# COPY sequenceDiagram.puml /sequenceDiagram.puml
-# WORKDIR /plantuml-server
-# RUN gradle --status
-# WORKDIR /plantuml
-# RUN /usr/bin/gradle jar
+# COPY config.properties /plantuml-server/src/main/resources/config.properties
+# COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
 WORKDIR /plantuml-server
-RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
+RUN mvn package -Dapache-jsp.scope=compile
+# RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
 
+# ╭―
+# │                                                                         
+# │ STAGE: container                                                        
+# │                                                                         
+# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+FROM docker.io/gautada/alpine:$ALPINE_VERSION
 
-# ╭――――――――――――――――-------------------------------------------------------――╮
-# │                                                                         │
-# │ STAGE 2: plantuml-container                                             │
-# │                                                                         │
-# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――╯
-FROM gautada/alpine:$ALPINE_VERSION
-
-# ╭――――――――――――――――――――╮
-# │ METADATA           │
-# ╰――――――――――――――――――――╯
+# ╭―
+# │ METADATA           
+# ╰――――――――――――――――――――
 LABEL source="https://github.com/gautada/plantuml-container.git"
 LABEL maintainer="Adam Gautier <adam@gautier.org>"
 LABEL description="A plant uml server"
 
-# ╭――――――――――――――――――――╮
-# │ ENTRYPOINT         │
-# ╰――――――――――――――――――――╯
-RUN rm -v /etc/container/entrypoint
+# ╭―
+# │ USER
+# ╰――――――――――――――――――――
+ARG USER=plantuml
+RUN /usr/sbin/usermod -l $USER alpine
+RUN /usr/sbin/usermod -d /home/$USER -m $USER
+RUN /usr/sbin/groupmod -n $USER alpine
+RUN /bin/echo "$USER:$USER" | /usr/sbin/chpasswd
+
+# ╭―
+# │ PRIVILEGES
+# ╰――――――――――――――――――――
+COPY privileges /etc/container/privileges
+
+# ╭―
+# │ BACKUP
+# ╰――――――――――――――――――――
+# RUN /bin/rm -f /etc/periodic/hourly/container-backup
+# COPY backup /etc/container/backup
+
+# ╭―
+# │ ENTRYPOINT
+# ╰――――――――――――――――――――
 COPY entrypoint /etc/container/entrypoint
 
-# ╭――――――――――――――――――――╮
-# │ VERSION            │
-# ╰――――――――――――――――――――╯
+# ╭―
+# │ APPLICATION        
+# ╰――――――――――――――――――――
 ARG TOMCAT_VERSION=10.0.27
 ARG TOMCAT_BRANCH=v"$TOMCAT_VERSION"
 
-# ╭――――――――――――――――――――╮
-# │ PORTS              │
-# ╰――――――――――――――――――――╯
-EXPOSE 8080/tcp
-
-# ╭――――――――――――――――――――╮
-# │ APPLICATION        │
-# ╰――――――――――――――――――――╯
-# COPY --from=plantuml-build /plantuml-server/target/plantuml.war /plantuml.war
-# COPY --from=plantuml-build /plantuml/build/libs/*.jar /
 RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
+
 WORKDIR /opt
-RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
- && tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz \
- && mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10 \
- && rm -rf /opt/apache-tomcat-10.0.22 \
- && mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ \
- && mv /opt/tomcat10/logs /opt/tomcat10/logs~ \
- && mv /opt/tomcat10/temp /opt/tomcat10/temp~ \
- && mv /opt/tomcat10/work /opt/tomcat10/work~ \
- && mkdir /opt/tomcat10/webapps \
- && ln -s /opt/plantuml/logs /opt/tomcat10/logs \
- && ln -s /opt/plantuml/temp /opt/tomcat10/temp \
- && ln -s /opt/plantuml/work /opt/tomcat10/work
- 
-# && mv /plantuml.war /opt/tomcat10/webapps/ROOT.war \
-COPY --from=plantuml-build /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
+RUN curl -s https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz --output tomcat.tar.gz
 
-# ╭――――――――――――――――――――╮
-# │ USER               │
-# ╰――――――――――――――――――――╯
-# ARG USER=plantuml
-# RUN /bin/mkdir -p /opt/$USER /var/backup /tmp/backup /opt/backup \
-#  && /usr/sbin/addgroup $USER \
-#  && /usr/sbin/usermod -aG wheel $USER \
-#  && /bin/echo "$USER:$USER" | chpasswd \
-# && /bin/chown $USER:$USER -R /opt/tomcat10 /opt/$USER
-# /etc/backup /var/backup /tmp/backup /opt/backup
- 
-# USER $USER
-# WORKDIR /home/$USER
- #VOLUME /opt/$USER
+RUN tar -zxf tomcat.tar.gz
+RUN rm tomcat.tar.gz
+RUN mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10
+RUN rm -rf /opt/apache-tomcat-10.0.22 
+
+COPY --from=src /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
 
 
-
+# ╭―
+# │ CONFIGURATION
+# ╰――――――――――――――――――――
+RUN chown -R $USER:$USER /home/$USER /opt
+USER $USER
+VOLUME /mnt/volumes/backup
+VOLUME /mnt/volumes/configmaps
+VOLUME /mnt/volumes/container
+VOLUME /mnt/volumes/secrets
+EXPOSE 8080/tcp
+WORKDIR /home/$USER
