@@ -77,7 +77,7 @@ RUN rm -rf /opt/apache-tomcat-10.0.22
 # RUN mv /opt/tomcat10/logs /opt/tomcat10/logs~ 
 # RUN mv /opt/tomcat10/temp /opt/tomcat10/temp~ 
 # RUN mv /opt/tomcat10/work /opt/tomcat10/work~ 
-RUN mkdir /opt/tomcat10/webapps 
+# RUN mkdir /opt/tomcat10/webapps 
 # RUN mkdir /opt/plantuml 
 # RUN ln -s /opt/plantuml/logs /opt/tomcat10/logs 
 # RUN ln -s /opt/plantuml/temp /opt/tomcat10/temp 
