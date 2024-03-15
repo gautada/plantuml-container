@@ -68,18 +68,19 @@ ARG TOMCAT_BRANCH=v"$TOMCAT_VERSION"
 RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
 
 WORKDIR /opt
-RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
- && tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz \
- && mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10 \
- && rm -rf /opt/apache-tomcat-10.0.22 \
- && mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ \
- && mv /opt/tomcat10/logs /opt/tomcat10/logs~ \
- && mv /opt/tomcat10/temp /opt/tomcat10/temp~ \
- && mv /opt/tomcat10/work /opt/tomcat10/work~ \
- && mkdir /opt/tomcat10/webapps \
- && ln -s /opt/plantuml/logs /opt/tomcat10/logs \
- && ln -s /opt/plantuml/temp /opt/tomcat10/temp \
- && ln -s /opt/plantuml/work /opt/tomcat10/work
+RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+RUN tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz
+RUN mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10
+RUN rm -rf /opt/apache-tomcat-10.0.22 
+# RUN mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ 
+# RUN mv /opt/tomcat10/logs /opt/tomcat10/logs~ 
+# RUN mv /opt/tomcat10/temp /opt/tomcat10/temp~ 
+# RUN mv /opt/tomcat10/work /opt/tomcat10/work~ 
+RUN mkdir /opt/tomcat10/webapps 
+# RUN mkdir /opt/plantuml 
+# RUN ln -s /opt/plantuml/logs /opt/tomcat10/logs 
+# RUN ln -s /opt/plantuml/temp /opt/tomcat10/temp 
+# RUN ln -s /opt/plantuml/work /opt/tomcat10/work
 
 COPY --from=src /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
 
@@ -87,7 +88,7 @@ COPY --from=src /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plant
 # ╭―
 # │ CONFIGURATION
 # ╰――――――――――――――――――――
-RUN chown -R $USER:$USER /home/$USER /opt/tomcat10
+RUN chown -R $USER:$USER /home/$USER /opt
 USER $USER
 VOLUME /mnt/volumes/backup
 VOLUME /mnt/volumes/configmaps
