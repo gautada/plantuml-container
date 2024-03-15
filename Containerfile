@@ -61,6 +61,7 @@ COPY entrypoint /etc/container/entrypoint
 # ╭―
 # │ APPLICATION        
 # ╰――――――――――――――――――――
+RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
 
 ARG JETTY_VERSION=12.0.7
 
