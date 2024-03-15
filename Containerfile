@@ -14,8 +14,8 @@ RUN /sbin/apk add --no-cache git gradle maven openjdk17-jdk ttf-dejavu
 
 RUN git config --global advice.detachedHead false
 RUN git clone --branch $PLANTUML_SERVER_BRANCH --depth 1 https://github.com/plantuml/plantuml-server.git
-COPY config.properties /plantuml-server/src/main/resources/config.properties
-COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
+# COPY config.properties /plantuml-server/src/main/resources/config.properties
+# COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
 WORKDIR /plantuml-server
 RUN mvn package -Dapache-jsp.scope=compile
 # RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
@@ -62,36 +62,36 @@ COPY entrypoint /etc/container/entrypoint
 # ╭―
 # │ APPLICATION        
 # ╰――――――――――――――――――――
-RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
-RUN /sbin/apk add --no-cache jetty-runner
-ARG JETTY_VERSION=12.0.7
+ARG TOMCAT_VERSION=10.0.27
+ARG TOMCAT_BRANCH=v"$TOMCAT_VERSION"
 
-RUN /usr/bin/curl -s https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.zip --output /jetty-home.zip
+RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
 
 WORKDIR /opt
-RUN /usr/bin/unzip /jetty-home.zip
-RUN /bin/rm -f /jetty-home.zip
-RUN /bin/ln -fsv /opt/jetty-home-$JETTY_VERSION /opt/jetty-home
-WORKDIR /opt/jetty-home
+RUN wget https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
+ && tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz \
+ && mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10 \
+ && rm -rf /opt/apache-tomcat-10.0.22 \
+ && mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ \
+ && mv /opt/tomcat10/logs /opt/tomcat10/logs~ \
+ && mv /opt/tomcat10/temp /opt/tomcat10/temp~ \
+ && mv /opt/tomcat10/work /opt/tomcat10/work~ \
+ && mkdir /opt/tomcat10/webapps \
+ && ln -s /opt/plantuml/logs /opt/tomcat10/logs \
+ && ln -s /opt/plantuml/temp /opt/tomcat10/temp \
+ && ln -s /opt/plantuml/work /opt/tomcat10/work
 
-RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http,ee10-deploy
-# COPY --from=src /plantuml-server /home/$USER/plantuml-server
+COPY --from=src /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
 
-# RUN /bin/mkdir /home/$USER/jetty-base/webapps
-COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
-
-# COPY ROOT.xml /home/$USER/ROOT.xml
-# /home/$USER/jetty-base/webapps/ROOT.xml
 
 # ╭―
 # │ CONFIGURATION
 # ╰――――――――――――――――――――
-RUN chown -R $USER:$USER /home/$USER
+RUN chown -R $USER:$USER /home/$USER /opt/tomcat10
 USER $USER
-
 VOLUME /mnt/volumes/backup
 VOLUME /mnt/volumes/configmaps
 VOLUME /mnt/volumes/container
 VOLUME /mnt/volumes/secrets
 EXPOSE 8080/tcp
-WORKDIR /opt/jetty-home
+WORKDIR /home/$USER
