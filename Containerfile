@@ -74,15 +74,6 @@ RUN tar -zxf tomcat.tar.gz
 RUN rm tomcat.tar.gz
 RUN mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10
 RUN rm -rf /opt/apache-tomcat-10.0.22 
-# RUN mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ 
-# RUN mv /opt/tomcat10/logs /opt/tomcat10/logs~ 
-# RUN mv /opt/tomcat10/temp /opt/tomcat10/temp~ 
-# RUN mv /opt/tomcat10/work /opt/tomcat10/work~ 
-# RUN mkdir /opt/tomcat10/webapps 
-# RUN mkdir /opt/plantuml 
-# RUN ln -s /opt/plantuml/logs /opt/tomcat10/logs 
-# RUN ln -s /opt/plantuml/temp /opt/tomcat10/temp 
-# RUN ln -s /opt/plantuml/work /opt/tomcat10/work
 
 COPY --from=src /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
 
