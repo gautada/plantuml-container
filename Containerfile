@@ -73,12 +73,15 @@ RUN /bin/rm -f /jetty-home.zip
 RUN /bin/ln -fsv /opt/jetty-home-$JETTY_VERSION /opt/jetty-home
 WORKDIR /opt/jetty-home
 
-RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http
+# RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http
 # COPY --from=src /plantuml-server/target/plantuml.war /plantuml.war
 
 RUN /bin/mkdir /home/$USER/jetty-base/webapps
-COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
-COPY ROOT.xml /home/$USER/jetty-base/webapps/ROOT.xml
+COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/plantuml.war
+# /home/$USER/jetty-base/webapps/plantuml.war
+
+COPY ROOT.xml /home/$USER/ROOT.xml
+# /home/$USER/jetty-base/webapps/ROOT.xml
 
 # ╭―
 # │ CONFIGURATION
