@@ -61,25 +61,19 @@ COPY entrypoint /etc/container/entrypoint
 # ╭―
 # │ APPLICATION        
 # ╰――――――――――――――――――――
-# ARG TOMCAT_VERSION=10.0.27
-# ARG TOMCAT_BRANCH=v"$TOMCAT_VERSION"
 
-RUN /sbin/apk add --no-cache jetty-runner font-noto-cjk graphviz openjdk17-jre
-# WORKDIR /opt
-# RUN wget https://dlcdn.apache. org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
-# RUN tar -zxf apache-tomcat-$TOMCAT_VERSION.tar.gz \
-#  && mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10 \
-#  && rm -rf /opt/apache-tomcat-10.0.22 \
-#  && mv /opt/tomcat10/webapps /opt/tomcat10/webapps~ \
-#  && mv /opt/tomcat10/logs /opt/tomcat10/logs~ \
-#  && mv /opt/tomcat10/temp /opt/tomcat10/temp~ \
-#  && mv /opt/tomcat10/work /opt/tomcat10/work~ \
-#  && mkdir /opt/tomcat10/webapps \
-#  && ln -s /opt/plantuml/logs /opt/tomcat10/logs \
-#  && ln -s /opt/plantuml/temp /opt/tomcat10/temp \
-#  && ln -s /opt/plantuml/work /opt/tomcat10/work
+ARG JETTY_VERSION=12.0.7
 
-COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/plantuml.war
+RUN /usr/bin/curl -s https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.zip --output /jetty-home.zip
+
+WORKDIR /opt
+RUN /usr/bin/unzip /jetty-home.zip
+RUN /bin/rm -f /jetty-home.zip
+RUN /bin/ln -fsv /opt/jetty-home-$JETTY_VERSION /opt/jetty-home
+RUN /bin/mkdir /home/$USER/jetty-base
+WORKDIR /opt/java-home
+RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http
+COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
 
 # ╭―
 # │ CONFIGURATION
