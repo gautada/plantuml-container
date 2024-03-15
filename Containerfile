@@ -15,7 +15,7 @@ RUN /sbin/apk add --no-cache git gradle maven openjdk17-jdk ttf-dejavu
 RUN git config --global advice.detachedHead false
 RUN git clone --branch $PLANTUML_SERVER_BRANCH --depth 1 https://github.com/plantuml/plantuml-server.git
 COPY config.properties /plantuml-server/src/main/resources/config.properties
-# COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
+COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
 WORKDIR /plantuml-server
 RUN mvn package -Dapache-jsp.scope=compile
 # RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
