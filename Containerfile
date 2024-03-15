@@ -62,7 +62,7 @@ COPY entrypoint /etc/container/entrypoint
 # │ APPLICATION        
 # ╰――――――――――――――――――――
 RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
-
+RUN /sbin/apk add --no-cache jetty-runner
 ARG JETTY_VERSION=12.0.7
 
 RUN /usr/bin/curl -s https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.zip --output /jetty-home.zip
