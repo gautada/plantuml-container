@@ -12,7 +12,8 @@ container_version() {
 }
 
 container_entrypoint() {
- tail -f /dev/null
+ # tail -f /dev/null
+ /usr/bin/java -jar start.jar jetty.base=/home/plantuml/jetty-base
 }
 
 

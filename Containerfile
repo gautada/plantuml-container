@@ -91,4 +91,4 @@ VOLUME /mnt/volumes/configmaps
 VOLUME /mnt/volumes/container
 VOLUME /mnt/volumes/secrets
 EXPOSE 8080/tcp
-WORKDIR /home/$USER
+WORKDIR /opt/jetty-home
