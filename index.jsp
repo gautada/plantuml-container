@@ -71,9 +71,6 @@
             <% if (hasMap) { %>
                 <a href="<%= mapurl %>">View Map Data</a>
             <% } %>
-            <% if (showSocialButtons) { %>
-                <%@ include file="resource/socialbuttons2.jspf" %>
-            <% } %>
             <p id="diagram">
                 <img src="<%= imgurl %>" alt="PlantUML diagram" />
                 <%= map %>
