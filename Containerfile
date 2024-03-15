@@ -65,20 +65,19 @@ RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
 
 ARG JETTY_VERSION=12.0.7
 
-RUN /bin/mkdir /home/$USER/jetty-base
-
 RUN /usr/bin/curl -s https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.zip --output /jetty-home.zip
 
 WORKDIR /opt
 RUN /usr/bin/unzip /jetty-home.zip
 RUN /bin/rm -f /jetty-home.zip
 RUN /bin/ln -fsv /opt/jetty-home-$JETTY_VERSION /opt/jetty-home
-WORKDIR /opt/java-home
+WORKDIR /opt/jetty-home
 
-# RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http
-COPY --from=src /plantuml-server/target/plantuml.war /plantuml.war
+RUN /usr/bin/java -jar start.jar jetty.base=/home/$USER/jetty-base --add-module=server,http
+# COPY --from=src /plantuml-server/target/plantuml.war /plantuml.war
 
-# COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
+RUN /bin/mkdir /home/$USER/jetty-base/webapps
+COPY --from=src /plantuml-server/target/plantuml.war /home/$USER/jetty-base/webapps/plantuml.war
 
 # ╭―
 # │ CONFIGURATION
