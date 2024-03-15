@@ -12,8 +12,8 @@ container_version() {
 }
 
 container_entrypoint() {
- /opt/tomcat10/bin/catalina.sh run
- # tail -f /dev/null
+ # /opt/tomcat10/bin/catalina.sh run
+ tail -f /dev/null
 }
 
 
