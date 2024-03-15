@@ -17,7 +17,8 @@ RUN git clone --branch $PLANTUML_SERVER_BRANCH --depth 1 https://github.com/plan
 COPY config.properties /plantuml-server/src/main/resources/config.properties
 COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
 WORKDIR /plantuml-server
-RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
+RUN mvn package -Dapache-jsp.scope=compile
+# RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
 
 # ╭―
 # │                                                                         
