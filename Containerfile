@@ -32,7 +32,6 @@ RUN /usr/bin/apt-get install --yes fonts-noto-cjk graphviz
 
 WORKDIR /opt
 COPY --from=build /jdk-25.tgz /opt/jdk-25.tgz
-COPY --from=build /plantuml-server/target/plantuml.war /opt/plantuml/plantuml.war
 RUN /usr/bin/tar zxf jdk-25.tgz \
  && /usr/bin/mv jdk-25 jdk \
  && /usr/bin/rm jdk-25.tgz
@@ -43,6 +42,9 @@ ADD $TOMCAT_URL tomcat.tgz
 RUN /usr/bin/tar zxf tomcat.tgz \
  && /usr/bin/mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10 \
  && rm tomcat.tgz
+
+COPY --from=build /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
+# COPY --from=build /plantuml-server/target/plantuml.war /opt/plantuml/plantuml.war
 
 ARG USER=puml
 RUN /usr/sbin/useradd -m ${USER} 

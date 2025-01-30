@@ -24,3 +24,4 @@ manifest/
 .dockerignore
 
 .env
+manifest
