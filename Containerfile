@@ -1,91 +1,52 @@
-ARG ALPINE_VERSION=latest
+FROM docker.io/ubuntu:24.04 as build
 
-FROM docker.io/gautada/alpine:$ALPINE_VERSION as src
+RUN /usr/bin/apt-get update
+  
+RUN /usr/bin/apt-get install --yes git
 
-# ╭――――――――――――――――――――╮
-# │ VERSION            │
-# ╰――――――――――――――――――――╯
-ARG CONTAINER_VERSION="1.2022.7"
+# Need to download jdk-25 from https://jdk.java.net/25/
+ADD https://download.java.net/java/early_access/jdk25/7/GPL/openjdk-25-ea+7_linux-aarch64_bin.tar.gz jdk-25.tgz
+ADD https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz maven.tgz
+
+RUN /usr/bin/tar zxf jdk-25.tgz \
+ && /usr/bin/tar zxf maven.tgz \
+ && /usr/bin/ln -fsv apache-maven-3.9.9 maven
+
+ARG CONTAINER_VERSION="1.2025.0"
 ARG PLANTUML_SERVER_VERSION="$CONTAINER_VERSION"
 ARG PLANTUML_SERVER_BRANCH=v"$PLANTUML_SERVER_VERSION"
 
-RUN /sbin/apk add --no-cache git gradle maven openjdk17-jdk ttf-dejavu
-# graphviz
-
+ENV JAVA_HOME=/jdk-25
+ENV PATH=$PATH:/jdk-25/bin:/maven/bin 
 RUN git config --global advice.detachedHead false
 RUN git clone --branch $PLANTUML_SERVER_BRANCH --depth 1 https://github.com/plantuml/plantuml-server.git
-# COPY config.properties /plantuml-server/src/main/resources/config.properties
-# COPY index.jsp /plantuml-server/src/main/webapp/index.jsp
 WORKDIR /plantuml-server
-RUN mvn package -Dapache-jsp.scope=compile
-# RUN mvn --batch-mode --define java.net.useSystemProxies=true -Dapache-jsp.scope=compile package
+RUN /maven/bin/mvn package -Dapache-jsp.scope=compile
 
-# ╭―
-# │                                                                         
-# │ STAGE: container                                                        
-# │                                                                         
-# ╰―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-FROM docker.io/gautada/alpine:$ALPINE_VERSION
+FROM docker.io/ubuntu:24.04
 
-# ╭―
-# │ METADATA           
-# ╰――――――――――――――――――――
-LABEL source="https://github.com/gautada/plantuml-container.git"
-LABEL maintainer="Adam Gautier <adam@gautier.org>"
-LABEL description="A plant uml server"
-
-# ╭―
-# │ USER
-# ╰――――――――――――――――――――
-ARG USER=plantuml
-RUN /usr/sbin/usermod -l $USER alpine
-RUN /usr/sbin/usermod -d /home/$USER -m $USER
-RUN /usr/sbin/groupmod -n $USER alpine
-RUN /bin/echo "$USER:$USER" | /usr/sbin/chpasswd
-
-# ╭―
-# │ PRIVILEGES
-# ╰――――――――――――――――――――
-COPY privileges /etc/container/privileges
-
-# ╭―
-# │ BACKUP
-# ╰――――――――――――――――――――
-# RUN /bin/rm -f /etc/periodic/hourly/container-backup
-# COPY backup /etc/container/backup
-
-# ╭―
-# │ ENTRYPOINT
-# ╰――――――――――――――――――――
-COPY entrypoint /etc/container/entrypoint
-
-# ╭―
-# │ APPLICATION        
-# ╰――――――――――――――――――――
-ARG TOMCAT_VERSION=10.0.27
-ARG TOMCAT_BRANCH=v"$TOMCAT_VERSION"
-
-RUN /sbin/apk add --no-cache font-noto-cjk graphviz openjdk17-jre
+RUN /usr/bin/apt-get update \
+ && /usr/bin/apt-get upgrade --yes
+ 
+RUN /usr/bin/apt-get install --yes fonts-noto-cjk graphviz
 
 WORKDIR /opt
-RUN curl -s https://dlcdn.apache.org/tomcat/tomcat-10/$TOMCAT_BRANCH/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz --output tomcat.tar.gz
+COPY --from=build /jdk-25.tgz /opt/jdk-25.tgz
+COPY --from=build /plantuml-server/target/plantuml.war /opt/plantuml/plantuml.war
+RUN /usr/bin/tar zxf jdk-25.tgz \
+ && /usr/bin/mv jdk-25 jdk \
+ && /usr/bin/rm jdk-25.tgz
 
-RUN tar -zxf tomcat.tar.gz
-RUN rm tomcat.tar.gz
-RUN mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10
-RUN rm -rf /opt/apache-tomcat-10.0.22 
+ARG TOMCAT_VERSION=10.1.34
+ARG TOMCAT_URL="https://dlcdn.apache.org/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz"
+ADD $TOMCAT_URL tomcat.tgz
+RUN /usr/bin/tar zxf tomcat.tgz \
+ && /usr/bin/mv /opt/apache-tomcat-$TOMCAT_VERSION /opt/tomcat10 \
+ && rm tomcat.tgz
 
-COPY --from=src /plantuml-server/target/plantuml.war /opt/tomcat10/webapps/plantuml.war
-
-
-# ╭―
-# │ CONFIGURATION
-# ╰――――――――――――――――――――
-RUN chown -R $USER:$USER /home/$USER /opt
+ARG USER=puml
+RUN /usr/sbin/useradd -m ${USER} 
+RUN /usr/bin/chown -R puml:puml /opt
 USER $USER
-VOLUME /mnt/volumes/backup
-VOLUME /mnt/volumes/configmaps
-VOLUME /mnt/volumes/container
-VOLUME /mnt/volumes/secrets
-EXPOSE 8080/tcp
-WORKDIR /home/$USER
+
+ENTRYPOINT ["/opt/tomcat10/bin/catalina.sh", "run"]
