@@ -13,6 +13,12 @@ This container is a [PlantUML Server](https://github.com/plantuml/plantuml-serve
 - **Metadata:** A diagram's source code is saved in the generated PNG metadata 
 
 
+Environment Variables
+```
+JAVA_HOME=/opt/jdk
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/jdk/bin
+```
+
 ### Encoding
 
 Provides a standardized way to [encode diagram text description to a simple string of characters](https://plantuml.com/text-encoding) that contains only digits, letters, underscore and minus character. The goal of such an encoding is to facilitate communication of diagrams through URL (see server). This encoding includes compression to keep encoded strings as short as possible.
